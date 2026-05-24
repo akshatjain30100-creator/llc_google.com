@@ -104,8 +104,8 @@
         const googleServices = [
             { name: 'Workspace Home', url: 'home', icon: 'dashboard', color: 'text-zinc-400', embeddable: true },
             { name: 'Google Search', url: 'https://www.google.com/webhp?igu=1', icon: 'search', color: 'text-blue-500', embeddable: true },
-            { name: 'Google Maps', url: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3571.5583724391697!2d74.607421!3d26.469855!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjbCsDI4JzExLjUiTiA3NMKwMzYnMjYuNyJF!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin', icon: 'maps', color: 'text-green-500', embeddable: true },
-            { name: 'YouTube', url: 'https://www.youtube.com/embed?videoseries?list=PL33E1C52CE621B574', icon: 'video', color: 'text-red-500', embeddable: true },
+            { name: 'Google Maps', url: 'https://www.google.com/maps', icon: 'maps', color: 'text-green-500', embeddable: false },
+            { name: 'YouTube', url: 'https://www.youtube.com/webhp?igu=1', icon: 'video', color: 'text-red-500', embeddable: false },
             { name: 'Gemini AI', url: 'https://gemini.google.com', icon: 'gemini', color: 'text-purple-400', embeddable: false },
             { name: 'NotebookLM', url: 'https://notebooklm.google.com', icon: 'notebook', color: 'text-cyan-400', embeddable: false },
             { name: 'Google Ads', url: 'https://ads.google.com/ups/routing?source=206&subid=xs-ip-gemini-adlt', icon: 'ads', color: 'text-amber-500', embeddable: false },
@@ -174,8 +174,13 @@
         function handleServiceSelect(index) {
             const service = googleServices[index];
 
+            // If it's a blocked embed site (YouTube, Maps, etc.), jump out cleanly!
             if (!service.embeddable) {
-                window.open(service.url, '_blank');
+                if (service.name === 'YouTube') {
+                    window.open('https://www.youtube.com', '_blank');
+                } else {
+                    window.open(service.url, '_blank');
+                }
                 return; 
             }
 
