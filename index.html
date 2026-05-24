@@ -68,7 +68,7 @@
     <!-- 🖥️ MAIN ECOSYSTEM CONTAINER (DASHBOARD ENGINE) -->
     <main class="flex-1 flex flex-col h-full bg-black relative pt-16 md:pt-0 overflow-hidden">
         
-        <!-- Welcome Dashboard Screen (Default state explicitly enforced via class structural layers) -->
+        <!-- Welcome Dashboard Screen -->
         <div id="welcomeDashboard" class="absolute inset-0 z-10 flex flex-col items-center justify-start md:justify-center p-6 text-center bg-workspaceBg overflow-y-auto no-scrollbar scrolling-touch">
             <div class="max-w-5xl w-full py-6">
                 <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-2">Welcome to Your Google Hub</h2>
@@ -114,21 +114,21 @@
         };
 
         const googleServices = [
-            { name: 'Workspace Home', url: 'home', icon: 'dashboard', color: 'text-zinc-400' },
-            { name: 'Google Search', url: 'https://www.google.com/webhp?igu=1', icon: 'search', color: 'text-blue-500' },
-            { name: 'YouTube', url: 'https://www.youtube.com/embed?listType=search&list=trending', icon: 'video', color: 'text-red-500' },
-            { name: 'Gemini AI', url: 'https://gemini.google.com', icon: 'gemini', targetBlank: true, color: 'text-purple-400' },
-            { name: 'NotebookLM', url: 'https://notebooklm.google.com', icon: 'notebook', targetBlank: true, color: 'text-cyan-400' },
-            { name: 'Google Ads', url: 'https://ads.google.com/ups/routing?source=206&subid=xs-ip-gemini-adlt', icon: 'ads', targetBlank: true, color: 'text-amber-500' },
-            { name: 'Google Docs', url: 'https://docs.google.com', icon: 'docs', targetBlank: true, color: 'text-blue-400' },
-            { name: 'Google Sheets', url: 'https://sheets.google.com', icon: 'sheets', targetBlank: true, color: 'text-green-400' },
-            { name: 'Google Slides', url: 'https://slides.google.com', icon: 'slides', targetBlank: true, color: 'text-yellow-600' },
-            { name: 'Google Photos', url: 'https://photos.google.com', icon: 'photos', targetBlank: true, color: 'text-indigo-400' },
-            { name: 'Google Keep', url: 'https://keep.google.com', icon: 'keep', targetBlank: true, color: 'text-amber-400' },
-            { name: 'Google Drive', url: 'https://drive.google.com', icon: 'drive', targetBlank: true, color: 'text-yellow-500' },
-            { name: 'Gmail', url: 'https://mail.google.com', icon: 'gmail', targetBlank: true, color: 'text-red-400' },
-            { name: 'Google Maps', url: 'https://maps.google.com/maps?output=embed', icon: 'maps', color: 'text-green-500' },
-            { name: 'Google Calendar', url: 'https://calendar.google.com', icon: 'calendar', targetBlank: true, color: 'text-blue-400' }
+            { name: 'Workspace Home', url: 'home', icon: 'dashboard', color: 'text-zinc-400', embeddable: true },
+            { name: 'Google Search', url: 'https://www.google.com/webhp?igu=1', icon: 'search', color: 'text-blue-500', embeddable: true },
+            { name: 'Google Maps', url: 'https://maps.google.com/maps?output=embed&q=India', icon: 'maps', color: 'text-green-500', embeddable: true },
+            { name: 'YouTube', url: 'https://www.youtube.com/embed?listType=search&list=trending', icon: 'video', color: 'text-red-500', embeddable: true },
+            { name: 'Gemini AI', url: 'https://gemini.google.com', icon: 'gemini', color: 'text-purple-400', embeddable: false },
+            { name: 'NotebookLM', url: 'https://notebooklm.google.com', icon: 'notebook', color: 'text-cyan-400', embeddable: false },
+            { name: 'Google Ads', url: 'https://ads.google.com/ups/routing?source=206&subid=xs-ip-gemini-adlt', icon: 'ads', color: 'text-amber-500', embeddable: false },
+            { name: 'Google Docs', url: 'https://docs.google.com', icon: 'docs', color: 'text-blue-400', embeddable: false },
+            { name: 'Google Sheets', url: 'https://sheets.google.com', icon: 'sheets', color: 'text-green-400', embeddable: false },
+            { name: 'Google Slides', url: 'https://slides.google.com', icon: 'slides', color: 'text-yellow-600', embeddable: false },
+            { name: 'Google Photos', url: 'https://photos.google.com', icon: 'photos', color: 'text-indigo-400', embeddable: false },
+            { name: 'Google Keep', url: 'https://keep.google.com', icon: 'keep', color: 'text-amber-400', embeddable: false },
+            { name: 'Google Drive', url: 'https://drive.google.com', icon: 'drive', color: 'text-yellow-500', embeddable: false },
+            { name: 'Gmail', url: 'https://mail.google.com', icon: 'gmail', color: 'text-red-400', embeddable: false },
+            { name: 'Google Calendar', url: 'https://calendar.google.com', icon: 'calendar', color: 'text-blue-400', embeddable: false }
         ];
 
         let selectedIndex = 0;
@@ -186,6 +186,14 @@
         }
 
         function handleServiceSelect(index) {
+            const service = googleServices[index];
+
+            // If the service is NOT embeddable, open in New Tab safely
+            if (!service.embeddable) {
+                window.open(service.url, '_blank');
+                return; 
+            }
+
             selectedIndex = index;
             renderNavigation();
 
@@ -194,15 +202,9 @@
             const welcomeDashboard = document.getElementById('welcomeDashboard');
             const progressBar = document.getElementById('topProgressBar');
             
-            document.getElementById('mobileHeaderTitle').innerText = googleServices[index].name;
+            document.getElementById('mobileHeaderTitle').innerText = service.name;
 
-            if (googleServices[index].targetBlank) {
-                window.open(googleServices[index].url, '_blank');
-                // Enforce fallback lock to state index 0 safely
-                resetToHomeState();
-                return;
-            }
-
+            // Progress Bar Animation Loader
             clearInterval(progressInterval);
             progressBar.style.transition = 'none';
             progressBar.style.width = '0%';
@@ -221,7 +223,8 @@
                 }, 100);
             }, 50);
 
-            if (googleServices[index].url === 'home') {
+            // Routing Layout View Switcher
+            if (service.url === 'home') {
                 iframeWrapper.classList.add('hidden');
                 welcomeDashboard.classList.remove('hidden');
                 iframe.src = "about:blank";
@@ -231,9 +234,10 @@
             } else {
                 welcomeDashboard.classList.add('hidden');
                 iframeWrapper.classList.remove('hidden');
-                iframe.src = googleServices[index].url;
+                iframe.src = service.url;
             }
 
+            // Auto Close Mobile Sidebar Drawer
             const sidebarPanel = document.getElementById('sidebarPanel');
             if (!sidebarPanel.classList.contains('-translate-x-full')) {
                 toggleMobileSidebar();
@@ -268,7 +272,6 @@
             overlay.classList.toggle('hidden');
         }
 
-        // Initialize and force baseline index load state on runtime hooks
         window.onload = function() {
             resetToHomeState();
             buildDashboardGrid();
