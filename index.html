@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Workspace Pro Dashboard</title>
     
-    <!-- Tailwind CSS Engine Via CDN Generation -->
+    <!-- Tailwind CSS Engine Via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Material Design Icons Layer -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-    <!-- Custom Style Layer Config Overrides -->
+    <!-- Custom Tailwind Configuration Overrides -->
     <script>
         tailwind.config = {
             theme: {
@@ -19,6 +19,7 @@
                     colors: {
                         workspaceBg: '#121214',
                         sidebarBg: '#1e1e24',
+                        cardBg: '#1a1a22'
                     }
                 }
             }
@@ -35,12 +36,12 @@
     <!-- ⏳ TOP PROGRESS TRACK BAR (DYNAMIC CLIENT-SIDE RENDER ANIMATION) -->
     <div id="topProgressBar" class="fixed top-0 left-0 h-[3px] bg-blue-600 z-[9999] w-0 transition-all duration-300 ease-out"></div>
 
-    <!-- 📱 RESPONSIVE MOBILE BAR (Visibles conditionally under 768px screens) -->
+    <!-- 📱 RESPONSIVE MOBILE BAR -->
     <div class="md:hidden fixed top-0 left-0 right-0 h-16 bg-sidebarBg border-b border-white/5 flex items-center px-4 z-40">
         <button onclick="toggleMobileSidebar()" class="text-white mr-4 p-1 rounded-lg hover:bg-white/5 active:scale-95 transition-transform">
             <i class="material-icons text-2xl">menu</i>
         </button>
-        <h1 id="mobileHeaderTitle" class="text-md font-semibold tracking-wide text-zinc-100">Google Search</h1>
+        <h1 id="mobileHeaderTitle" class="text-md font-semibold tracking-wide text-zinc-100">Workspace Home</h1>
     </div>
 
     <!-- 🌫️ MOBILE SIDEBAR BACKDROP SCREEN OVERLAY -->
@@ -57,7 +58,7 @@
                     Workspace Pro
                 </span>
             </div>
-            <!-- Dynamic Mobile dismiss panel button toggle control -->
+            <!-- Mobile dismiss button toggle control -->
             <button onclick="toggleMobileSidebar()" class="md:hidden text-zinc-400 hover:text-white p-1 rounded-lg">
                 <i class="material-icons">close</i>
             </button>
@@ -67,12 +68,27 @@
         <nav id="navigationContainer" class="flex-1 py-4 overflow-y-auto space-y-1 no-scrollbar"></nav>
     </aside>
 
-    <!-- 🖥️ MAIN ECOSYSTEM CONTAINER IFRAME CONTAINER ENGINE -->
+    <!-- 🖥️ MAIN ECOSYSTEM CONTAINER (DASHBOARD ENGINE) -->
     <main class="flex-1 flex flex-col h-full bg-black relative pt-16 md:pt-0">
+        
+        <!-- Welcome Dashboard Screen (Default State to handle security fallbacks gracefully) -->
+        <div id="welcomeDashboard" class="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center bg-workspaceBg overflow-y-auto no-scrollbar">
+            <div class="max-w-3xl w-full">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-2">Welcome to Your Google Hub</h2>
+                <p class="text-zinc-400 mb-8 max-w-md mx-auto text-sm md:text-base">Select any tool from the sidebar or jump directly using the actions below.</p>
+                
+                <!-- Quick Launch Grid Layout -->
+                <div id="dashboardGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <!-- Dynamic Cards will be injected via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Frame Node Container for Target Tools -->
         <iframe
             id="workspaceFrame"
-            src="https://www.google.com"
-            class="w-full h-full border-none bg-white"
+            src="about:blank"
+            class="w-full h-full border-none bg-white hidden"
             allow="geolocation; microphone; camera; encrypted-media;"
             sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
         ></iframe>
@@ -80,20 +96,21 @@
 
     <!-- ⚙️ COMPACT JS STATE MACHINE CONTROL HANDLING ACTIONS -->
     <script>
-        // Core Static Framework Data Map Mapping Matrix Data Arrays
+        // Core Mappings Matrix Data Arrays with specialized embed/fallback routes
         const googleServices = [
-            { name: 'Google Search', url: 'https://www.google.com', icon: 'search' },
-            { name: 'YouTube', url: 'https://www.youtube.com', icon: 'video_library' },
-            { name: 'Google Drive', url: 'https://drive.google.com', icon: 'cloud_queue' },
-            { name: 'Gmail', url: 'https://mail.google.com', icon: 'email_outlined' },
-            { name: 'Google Maps', url: 'https://maps.google.com', icon: 'map_outlined' },
-            { name: 'Google Calendar', url: 'https://calendar.google.com', icon: 'calendar_month' }
+            { name: 'Workspace Home', url: 'home', icon: 'dashboard', color: 'text-zinc-400' },
+            { name: 'Google Search', url: 'https://www.google.com/webhp?igu=1', icon: 'search', color: 'text-blue-500' },
+            { name: 'YouTube', url: 'https://www.youtube.com/embed/', icon: 'video_library', fallback: 'https://www.youtube.com', color: 'text-red-500' },
+            { name: 'Google Drive', url: 'https://drive.google.com', icon: 'cloud_queue', targetBlank: true, color: 'text-yellow-500' },
+            { name: 'Gmail', url: 'https://mail.google.com', icon: 'email_outlined', targetBlank: true, color: 'text-red-400' },
+            { name: 'Google Maps', url: 'https://maps.google.com/maps?output=embed', fallback: 'https://maps.google.com', icon: 'map_outlined', color: 'text-green-500' },
+            { name: 'Google Calendar', url: 'https://calendar.google.com', icon: 'calendar_month', targetBlank: true, color: 'text-blue-400' }
         ];
 
         let selectedIndex = 0;
         let progressInterval;
 
-        // Render Client-Side Navigation Panels dynamically logic mappings loop
+        // Render Client-Side Navigation Panels dynamically
         function renderNavigation() {
             const container = document.getElementById('navigationContainer');
             container.innerHTML = '';
@@ -122,18 +139,49 @@
             });
         }
 
-        // Intercept routes action transitions and mock loading sequences progression track
+        // Generate Central Dashboard Interface Grid Items
+        function buildDashboardGrid() {
+            const grid = document.getElementById('dashboardGrid');
+            grid.innerHTML = '';
+
+            // Render all items except index 0 (Home itself)
+            googleServices.forEach((service, index) => {
+                if (index === 0) return;
+
+                const card = document.createElement('div');
+                card.className = 'bg-cardBg border border-white/5 p-5 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-blue-500/50 hover:bg-white/[0.02] transition-all duration-300 group shadow-lg';
+                card.onclick = () => handleServiceSelect(index);
+
+                card.innerHTML = `
+                    <div class="p-3 bg-white/5 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        <i class="material-icons text-3xl ${service.color}">${service.icon}</i>
+                    </div>
+                    <span class="text-sm font-medium tracking-wide text-zinc-200">${service.name}</span>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Route action transitions manager
         function handleServiceSelect(index) {
             selectedIndex = index;
             renderNavigation();
 
             const iframe = document.getElementById('workspaceFrame');
+            const welcomeDashboard = document.getElementById('welcomeDashboard');
             const progressBar = document.getElementById('topProgressBar');
             
-            // Sync current configuration state to alternate mobile layout layers text labels
             document.getElementById('mobileHeaderTitle').innerText = googleServices[index].name;
 
-            // Trigger progress pipeline load animations indicators sequence
+            // Handle External Target Safetynets (For Tools completely blocked by X-Frame headers like Gmail/Drive)
+            if (googleServices[index].targetBlank) {
+                window.open(googleServices[index].url, '_blank');
+                // Return navigation focus automatically to Home dashboard
+                handleServiceSelect(0);
+                return;
+            }
+
+            // Trigger progress bar mock transitions
             clearInterval(progressInterval);
             progressBar.style.transition = 'none';
             progressBar.style.width = '0%';
@@ -152,40 +200,52 @@
                 }, 100);
             }, 50);
 
-            // Commit dynamic state mutation endpoints modifications to browser nodes target
-            iframe.src = googleServices[index].url;
+            // Handle Home vs Iframe View states switcher
+            if (googleServices[index].url === 'home') {
+                iframe.classList.add('hidden');
+                welcomeDashboard.classList.remove('hidden');
+                iframe.src = "about:blank";
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                setTimeout(() => progressBar.style.width = '0%', 300);
+            } else {
+                welcomeDashboard.classList.add('hidden');
+                iframe.classList.remove('hidden');
+                iframe.src = googleServices[index].url;
+            }
 
-            // Close context side drawers views automatically when interacting with choices items list layouts
+            // Close responsive side drawers views on action
             const sidebarPanel = document.getElementById('sidebarPanel');
-            const overlay = document.getElementById('sidebarOverlay');
             if (!sidebarPanel.classList.contains('-translate-x-full')) {
                 toggleMobileSidebar();
             }
         }
 
-        // Complete loading pipeline state adjustments automatically upon loading completions callbacks routines execution
+        // Frame loader reset bindings
         document.getElementById('workspaceFrame').onload = function() {
             clearInterval(progressInterval);
             const progressBar = document.getElementById('topProgressBar');
-            progressBar.style.width = '100%';
-            setTimeout(() => {
-                progressBar.style.width = '0%';
-                progressBar.style.transition = 'none';
-            }, 300);
+            if (this.src !== "about:blank") {
+                progressBar.style.width = '100%';
+                setTimeout(() => {
+                    progressBar.style.width = '0%';
+                    progressBar.style.transition = 'none';
+                }, 300);
+            }
         };
 
-        // Mobile Sidebar toggler interface visibility modifier logic transitions functions action layers
+        // Mobile layout sidebar visibility handler
         function toggleMobileSidebar() {
             const panel = document.getElementById('sidebarPanel');
             const overlay = document.getElementById('sidebarOverlay');
-            
             panel.classList.toggle('-translate-x-full');
             overlay.classList.toggle('hidden');
         }
 
-        // System Initialization Initial Callbacks execution pipeline routines loops
+        // Initialize App Runtime Hooks
         window.onload = function() {
             renderNavigation();
+            buildDashboardGrid();
         };
     </script>
 </body>
