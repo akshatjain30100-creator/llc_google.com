@@ -7,9 +7,6 @@
     
     <!-- Tailwind CSS Engine Via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Material Design Icons Layer -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <!-- Custom Tailwind Configuration Overrides -->
     <script>
@@ -39,7 +36,8 @@
     <!-- 📱 RESPONSIVE MOBILE BAR -->
     <div class="md:hidden fixed top-0 left-0 right-0 h-16 bg-sidebarBg border-b border-white/5 flex items-center px-4 z-40">
         <button onclick="toggleMobileSidebar()" class="text-white mr-4 p-1 rounded-lg hover:bg-white/5 active:scale-95 transition-transform">
-            <i class="material-icons text-2xl">menu</i>
+            <!-- Mobile Menu SVG -->
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <h1 id="mobileHeaderTitle" class="text-md font-semibold tracking-wide text-zinc-100">Workspace Home</h1>
     </div>
@@ -53,14 +51,15 @@
         <!-- Corporate Identity Header -->
         <div class="p-6 border-b border-white/5 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <i class="material-icons text-blue-500 animate-pulse text-3xl">layers</i>
+                <!-- Dashboard Brand Logo SVG -->
+                <svg class="w-7 h-7 text-blue-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                 <span class="text-lg font-bold tracking-wider bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
                     Workspace Pro
                 </span>
             </div>
-            <!-- Mobile dismiss button toggle control -->
+            <!-- Mobile dismiss button -->
             <button onclick="toggleMobileSidebar()" class="md:hidden text-zinc-400 hover:text-white p-1 rounded-lg">
-                <i class="material-icons">close</i>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
 
@@ -71,15 +70,15 @@
     <!-- 🖥️ MAIN ECOSYSTEM CONTAINER (DASHBOARD ENGINE) -->
     <main class="flex-1 flex flex-col h-full bg-black relative pt-16 md:pt-0">
         
-        <!-- Welcome Dashboard Screen (Default State to handle security fallbacks gracefully) -->
+        <!-- Welcome Dashboard Screen -->
         <div id="welcomeDashboard" class="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center bg-workspaceBg overflow-y-auto no-scrollbar">
-            <div class="max-w-3xl w-full">
+            <div class="max-w-4xl w-full">
                 <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-2">Welcome to Your Google Hub</h2>
                 <p class="text-zinc-400 mb-8 max-w-md mx-auto text-sm md:text-base">Select any tool from the sidebar or jump directly using the actions below.</p>
                 
                 <!-- Quick Launch Grid Layout -->
-                <div id="dashboardGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <!-- Dynamic Cards will be injected via JS -->
+                <div id="dashboardGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- Dynamic Cards injected via JS -->
                 </div>
             </div>
         </div>
@@ -89,22 +88,37 @@
             id="workspaceFrame"
             src="about:blank"
             class="w-full h-full border-none bg-white hidden"
-            allow="geolocation; microphone; camera; encrypted-media;"
+            allow="geolocation; microphone; camera; encrypted-media; autoplay;"
             sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
         ></iframe>
     </main>
 
     <!-- ⚙️ COMPACT JS STATE MACHINE CONTROL HANDLING ACTIONS -->
     <script>
-        // Core Mappings Matrix Data Arrays with specialized embed/fallback routes
+        // Native Offline SVG Vector Pathways Dictionary Matrix
+        const svgIcons = {
+            dashboard: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>`,
+            search: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>`,
+            video: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>`,
+            gemini: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>`,
+            notebook: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>`,
+            drive: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5 5 0 00-4.591-3.441 5 5 0 00-4.746 3.445 1 1 0 01-1 1A4 4 0 003 15z"/></svg>`,
+            gmail: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>`,
+            maps: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`,
+            calendar: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`
+        };
+
+        // Static Master Services Mapping Configuration Array Matrix
         const googleServices = [
             { name: 'Workspace Home', url: 'home', icon: 'dashboard', color: 'text-zinc-400' },
             { name: 'Google Search', url: 'https://www.google.com/webhp?igu=1', icon: 'search', color: 'text-blue-500' },
-            { name: 'YouTube', url: 'https://www.youtube.com/embed/', icon: 'video_library', fallback: 'https://www.youtube.com', color: 'text-red-500' },
-            { name: 'Google Drive', url: 'https://drive.google.com', icon: 'cloud_queue', targetBlank: true, color: 'text-yellow-500' },
-            { name: 'Gmail', url: 'https://mail.google.com', icon: 'email_outlined', targetBlank: true, color: 'text-red-400' },
-            { name: 'Google Maps', url: 'https://maps.google.com/maps?output=embed', fallback: 'https://maps.google.com', icon: 'map_outlined', color: 'text-green-500' },
-            { name: 'Google Calendar', url: 'https://calendar.google.com', icon: 'calendar_month', targetBlank: true, color: 'text-blue-400' }
+            { name: 'YouTube', url: 'https://www.youtube.com/embed?listType=search&list=trending', icon: 'video', color: 'text-red-500' },
+            { name: 'Gemini AI', url: 'https://gemini.google.com', icon: 'gemini', targetBlank: true, color: 'text-purple-400' },
+            { name: 'NotebookLM', url: 'https://notebooklm.google.com', icon: 'notebook', targetBlank: true, color: 'text-cyan-400' },
+            { name: 'Google Drive', url: 'https://drive.google.com', icon: 'drive', targetBlank: true, color: 'text-yellow-500' },
+            { name: 'Gmail', url: 'https://mail.google.com', icon: 'gmail', targetBlank: true, color: 'text-red-400' },
+            { name: 'Google Maps', url: 'https://maps.google.com/maps?output=embed', icon: 'maps', color: 'text-green-500' },
+            { name: 'Google Calendar', url: 'https://calendar.google.com', icon: 'calendar', targetBlank: true, color: 'text-blue-400' }
         ];
 
         let selectedIndex = 0;
@@ -129,8 +143,11 @@
                     : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-100'
                 }`;
 
+                // Native SVG injection layout mapping
                 button.innerHTML = `
-                    <i class="material-icons transition-colors duration-200 ${isSelected ? 'text-blue-500' : 'text-zinc-400 group-hover:text-zinc-200'}">${service.icon}</i>
+                    <div class="transition-colors duration-200 ${isSelected ? 'text-blue-500' : 'text-zinc-400 group-hover:text-zinc-200'}">
+                        ${svgIcons[service.icon]}
+                    </div>
                     <span class="text-[14.5px] tracking-wide">${service.name}</span>
                 `;
 
@@ -144,7 +161,6 @@
             const grid = document.getElementById('dashboardGrid');
             grid.innerHTML = '';
 
-            // Render all items except index 0 (Home itself)
             googleServices.forEach((service, index) => {
                 if (index === 0) return;
 
@@ -153,8 +169,8 @@
                 card.onclick = () => handleServiceSelect(index);
 
                 card.innerHTML = `
-                    <div class="p-3 bg-white/5 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        <i class="material-icons text-3xl ${service.color}">${service.icon}</i>
+                    <div class="p-3 bg-white/5 rounded-xl group-hover:scale-110 transition-transform duration-300 ${service.color}">
+                        ${svgIcons[service.icon]}
                     </div>
                     <span class="text-sm font-medium tracking-wide text-zinc-200">${service.name}</span>
                 `;
@@ -173,15 +189,14 @@
             
             document.getElementById('mobileHeaderTitle').innerText = googleServices[index].name;
 
-            // Handle External Target Safetynets (For Tools completely blocked by X-Frame headers like Gmail/Drive)
+            // Handle External Targets Safetynets
             if (googleServices[index].targetBlank) {
                 window.open(googleServices[index].url, '_blank');
-                // Return navigation focus automatically to Home dashboard
                 handleServiceSelect(0);
                 return;
             }
 
-            // Trigger progress bar mock transitions
+            // Trigger progress bar loader
             clearInterval(progressInterval);
             progressBar.style.transition = 'none';
             progressBar.style.width = '0%';
@@ -200,7 +215,7 @@
                 }, 100);
             }, 50);
 
-            // Handle Home vs Iframe View states switcher
+            // Handle View States Switcher
             if (googleServices[index].url === 'home') {
                 iframe.classList.add('hidden');
                 welcomeDashboard.classList.remove('hidden');
@@ -214,7 +229,7 @@
                 iframe.src = googleServices[index].url;
             }
 
-            // Close responsive side drawers views on action
+            // Close mobile menu sidebar
             const sidebarPanel = document.getElementById('sidebarPanel');
             if (!sidebarPanel.classList.contains('-translate-x-full')) {
                 toggleMobileSidebar();
@@ -234,7 +249,7 @@
             }
         };
 
-        // Mobile layout sidebar visibility handler
+        // Mobile layout sidebar visibility toggler
         function toggleMobileSidebar() {
             const panel = document.getElementById('sidebarPanel');
             const overlay = document.getElementById('sidebarOverlay');
