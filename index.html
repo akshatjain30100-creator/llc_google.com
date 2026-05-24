@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Workspace Pro Dashboard</title>
+    
+    <!-- Tailwind CSS Engine Via CDN Generation -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Material Design Icons Layer -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Custom Style Layer Config Overrides -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        workspaceBg: '#121214',
+                        sidebarBg: '#1e1e24',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Hide scrollbars inside workspace navigation layout structures */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-workspaceBg text-white overflow-hidden h-screen w-screen flex font-sans antialiased">
+
+    <!-- ⏳ TOP PROGRESS TRACK BAR (DYNAMIC CLIENT-SIDE RENDER ANIMATION) -->
+    <div id="topProgressBar" class="fixed top-0 left-0 h-[3px] bg-blue-600 z-[9999] w-0 transition-all duration-300 ease-out"></div>
+
+    <!-- 📱 RESPONSIVE MOBILE BAR (Visibles conditionally under 768px screens) -->
+    <div class="md:hidden fixed top-0 left-0 right-0 h-16 bg-sidebarBg border-b border-white/5 flex items-center px-4 z-40">
+        <button onclick="toggleMobileSidebar()" class="text-white mr-4 p-1 rounded-lg hover:bg-white/5 active:scale-95 transition-transform">
+            <i class="material-icons text-2xl">menu</i>
+        </button>
+        <h1 id="mobileHeaderTitle" class="text-md font-semibold tracking-wide text-zinc-100">Google Search</h1>
+    </div>
+
+    <!-- 🌫️ MOBILE SIDEBAR BACKDROP SCREEN OVERLAY -->
+    <div id="sidebarOverlay" onclick="toggleMobileSidebar()" class="hidden md:hidden fixed inset-0 bg-black/60 z-40 backdrop-blur-sm transition-opacity"></div>
+
+    <!-- 🧭 ADAPTIVE DRAWER & SIDEBAR WORKSPACE NAVIGATION -->
+    <aside id="sidebarPanel" class="fixed md:static inset-y-0 left-0 w-[275px] bg-sidebarBg border-r border-white/5 flex flex-col z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+        
+        <!-- Corporate Identity Header -->
+        <div class="p-6 border-b border-white/5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i class="material-icons text-blue-500 animate-pulse text-3xl">layers</i>
+                <span class="text-lg font-bold tracking-wider bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+                    Workspace Pro
+                </span>
+            </div>
+            <!-- Dynamic Mobile dismiss panel button toggle control -->
+            <button onclick="toggleMobileSidebar()" class="md:hidden text-zinc-400 hover:text-white p-1 rounded-lg">
+                <i class="material-icons">close</i>
+            </button>
+        </div>
+
+        <!-- CSR Dynamic UI Render Injector Point -->
+        <nav id="navigationContainer" class="flex-1 py-4 overflow-y-auto space-y-1 no-scrollbar"></nav>
+    </aside>
+
+    <!-- 🖥️ MAIN ECOSYSTEM CONTAINER IFRAME CONTAINER ENGINE -->
+    <main class="flex-1 flex flex-col h-full bg-black relative pt-16 md:pt-0">
+        <iframe
+            id="workspaceFrame"
+            src="https://www.google.com"
+            class="w-full h-full border-none bg-white"
+            allow="geolocation; microphone; camera; encrypted-media;"
+            sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
+        ></iframe>
+    </main>
+
+    <!-- ⚙️ COMPACT JS STATE MACHINE CONTROL HANDLING ACTIONS -->
+    <script>
+        // Core Static Framework Data Map Mapping Matrix Data Arrays
+        const googleServices = [
+            { name: 'Google Search', url: 'https://www.google.com', icon: 'search' },
+            { name: 'YouTube', url: 'https://www.youtube.com', icon: 'video_library' },
+            { name: 'Google Drive', url: 'https://drive.google.com', icon: 'cloud_queue' },
+            { name: 'Gmail', url: 'https://mail.google.com', icon: 'email_outlined' },
+            { name: 'Google Maps', url: 'https://maps.google.com', icon: 'map_outlined' },
+            { name: 'Google Calendar', url: 'https://calendar.google.com', icon: 'calendar_month' }
+        ];
+
+        let selectedIndex = 0;
+        let progressInterval;
+
+        // Render Client-Side Navigation Panels dynamically logic mappings loop
+        function renderNavigation() {
+            const container = document.getElementById('navigationContainer');
+            container.innerHTML = '';
+
+            googleServices.forEach((service, index) => {
+                const isSelected = index === selectedIndex;
+                
+                const btnContainer = document.createElement('div');
+                btnContainer.className = 'px-3';
+
+                const button = document.createElement('button');
+                button.onclick = () => handleServiceSelect(index);
+                button.className = `w-full flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group ${
+                    isSelected 
+                    ? 'bg-blue-600/10 text-blue-400 font-semibold border-l-4 border-blue-500 pl-3' 
+                    : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-100'
+                }`;
+
+                button.innerHTML = `
+                    <i class="material-icons transition-colors duration-200 ${isSelected ? 'text-blue-500' : 'text-zinc-400 group-hover:text-zinc-200'}">${service.icon}</i>
+                    <span class="text-[14.5px] tracking-wide">${service.name}</span>
+                `;
+
+                btnContainer.appendChild(button);
+                container.appendChild(btnContainer);
+            });
+        }
+
+        // Intercept routes action transitions and mock loading sequences progression track
+        function handleServiceSelect(index) {
+            selectedIndex = index;
+            renderNavigation();
+
+            const iframe = document.getElementById('workspaceFrame');
+            const progressBar = document.getElementById('topProgressBar');
+            
+            // Sync current configuration state to alternate mobile layout layers text labels
+            document.getElementById('mobileHeaderTitle').innerText = googleServices[index].name;
+
+            // Trigger progress pipeline load animations indicators sequence
+            clearInterval(progressInterval);
+            progressBar.style.transition = 'none';
+            progressBar.style.width = '0%';
+            
+            let currentWidth = 0;
+            setTimeout(() => {
+                progressBar.style.transition = 'width 0.4s ease-out';
+                currentWidth = 20;
+                progressBar.style.width = `${currentWidth}%`;
+
+                progressInterval = setInterval(() => {
+                    if (currentWidth < 85) {
+                        currentWidth += 15;
+                        progressBar.style.width = `${currentWidth}%`;
+                    }
+                }, 100);
+            }, 50);
+
+            // Commit dynamic state mutation endpoints modifications to browser nodes target
+            iframe.src = googleServices[index].url;
+
+            // Close context side drawers views automatically when interacting with choices items list layouts
+            const sidebarPanel = document.getElementById('sidebarPanel');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (!sidebarPanel.classList.contains('-translate-x-full')) {
+                toggleMobileSidebar();
+            }
+        }
+
+        // Complete loading pipeline state adjustments automatically upon loading completions callbacks routines execution
+        document.getElementById('workspaceFrame').onload = function() {
+            clearInterval(progressInterval);
+            const progressBar = document.getElementById('topProgressBar');
+            progressBar.style.width = '100%';
+            setTimeout(() => {
+                progressBar.style.width = '0%';
+                progressBar.style.transition = 'none';
+            }, 300);
+        };
+
+        // Mobile Sidebar toggler interface visibility modifier logic transitions functions action layers
+        function toggleMobileSidebar() {
+            const panel = document.getElementById('sidebarPanel');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            panel.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        // System Initialization Initial Callbacks execution pipeline routines loops
+        window.onload = function() {
+            renderNavigation();
+        };
+    </script>
+</body>
+</html>
