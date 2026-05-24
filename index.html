@@ -26,8 +26,6 @@
         /* Hide scrollbars inside workspace navigation layout structures */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Smooth Scrolling Safe Rules for Mobile Viewports */
         .scrolling-touch { -webkit-overflow-scrolling: touch; }
     </style>
 </head>
@@ -70,7 +68,7 @@
     <!-- 🖥️ MAIN ECOSYSTEM CONTAINER (DASHBOARD ENGINE) -->
     <main class="flex-1 flex flex-col h-full bg-black relative pt-16 md:pt-0 overflow-hidden">
         
-        <!-- Welcome Dashboard Screen -->
+        <!-- Welcome Dashboard Screen (Default state explicitly enforced via class structural layers) -->
         <div id="welcomeDashboard" class="absolute inset-0 z-10 flex flex-col items-center justify-start md:justify-center p-6 text-center bg-workspaceBg overflow-y-auto no-scrollbar scrolling-touch">
             <div class="max-w-5xl w-full py-6">
                 <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-2">Welcome to Your Google Hub</h2>
@@ -83,7 +81,7 @@
             </div>
         </div>
 
-        <!-- Dynamic Frame Node Container for Target Tools (Mobile Scroll Glitch Patched here) -->
+        <!-- Dynamic Frame Container Node -->
         <div id="iframeWrapper" class="w-full h-[calc(100vh-4rem)] md:h-full overflow-auto scrolling-touch hidden">
             <iframe
                 id="workspaceFrame"
@@ -95,9 +93,8 @@
         </div>
     </main>
 
-    <!-- ⚙️ COMPACT JS STATE MACHINE CONTROL HANDLING ACTIONS -->
+    <!-- ⚙️ CONTROL MECHANISM SCRIPTS -->
     <script>
-        // Dictionary for 100% Native Offline SVG Icons
         const svgIcons = {
             dashboard: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>`,
             search: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>`,
@@ -116,7 +113,6 @@
             keep: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>`
         };
 
-        // Master Service Grid Configuration
         const googleServices = [
             { name: 'Workspace Home', url: 'home', icon: 'dashboard', color: 'text-zinc-400' },
             { name: 'Google Search', url: 'https://www.google.com/webhp?igu=1', icon: 'search', color: 'text-blue-500' },
@@ -202,7 +198,8 @@
 
             if (googleServices[index].targetBlank) {
                 window.open(googleServices[index].url, '_blank');
-                handleServiceSelect(0);
+                // Enforce fallback lock to state index 0 safely
+                resetToHomeState();
                 return;
             }
 
@@ -243,6 +240,15 @@
             }
         }
 
+        function resetToHomeState() {
+            selectedIndex = 0;
+            renderNavigation();
+            document.getElementById('mobileHeaderTitle').innerText = googleServices[0].name;
+            document.getElementById('iframeWrapper').classList.add('hidden');
+            document.getElementById('welcomeDashboard').classList.remove('hidden');
+            document.getElementById('workspaceFrame').src = "about:blank";
+        }
+
         document.getElementById('workspaceFrame').onload = function() {
             clearInterval(progressInterval);
             const progressBar = document.getElementById('topProgressBar');
@@ -262,8 +268,9 @@
             overlay.classList.toggle('hidden');
         }
 
+        // Initialize and force baseline index load state on runtime hooks
         window.onload = function() {
-            renderNavigation();
+            resetToHomeState();
             buildDashboardGrid();
         };
     </script>
