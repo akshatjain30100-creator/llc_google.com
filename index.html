@@ -25,62 +25,50 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .scrolling-touch { -webkit-overflow-scrolling: touch; }
-        .dragging { opacity: 0.4; transform: scale(0.95); border-color: #2563eb !important; }
+        
+        .dragging {
+            opacity: 0.4;
+            transform: scale(0.95);
+            border-color: #2563eb !important;
+        }
     </style>
 </head>
 <body class="bg-workspaceBg-light dark:bg-workspaceBg-dark text-zinc-800 dark:text-white overflow-hidden h-screen w-screen flex font-sans antialiased select-none transition-colors duration-200">
 
-    <div id="authScreenOverlay" class="fixed inset-0 bg-zinc-950 z-[99999] flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 w-full max-w-md p-8 rounded-3xl shadow-2xl space-y-6 text-center">
-            <div class="mx-auto w-12 h-12 bg-blue-600/10 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-            </div>
-            <div>
-                <h2 id="authTitle" class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Workspace Gatekeeper</h2>
-                <p id="authSubtitle" class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Sign in or Create a new account using your Gmail ID.</p>
-            </div>
+    <div id="topProgressBar" class="fixed top-0 left-0 h-[3px] bg-blue-600 z-[9999] w-0 transition-all duration-300 ease-out"></div>
 
-            <div id="trialStatusBanner" class="p-3.5 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 text-xs rounded-xl font-medium border border-blue-500/10">
-                Checking evaluation trial system parameters...
-            </div>
-
-            <form id="authLoginForm" onsubmit="handleAuthSubmit(event)" class="space-y-4 text-left hidden">
-                <div>
-                    <label class="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">Gmail Identity Handle</label>
-                    <input type="email" id="authEmailInput" required placeholder="username@gmail.com" class="w-full bg-zinc-50 dark:bg-zinc-800 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors dark:text-white">
+    <div id="infoModalOverlay" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4 transition-all duration-300 opacity-0">
+        <div id="infoModalBox" class="bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 w-full max-w-4xl max-h-[85vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden transform scale-95 transition-all duration-300">
+            <div class="p-6 border-b border-black/5 dark:border-white/5 flex items-center justify-between bg-zinc-50 dark:bg-zinc-900/50">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-blue-600/10 text-blue-600 dark:text-blue-400 rounded-xl">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-zinc-900 dark:text-white">Workspace Ecosystem Directory</h3>
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400">Comprehensive summary of all optimized Google web application capabilities</p>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">Account Encryption Key (Password)</label>
-                    <input type="password" id="authPasswordInput" required placeholder="••••••••" class="w-full bg-zinc-50 dark:bg-zinc-800 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors dark:text-white">
-                </div>
-                <button type="submit" id="authSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-3 rounded-xl shadow-lg shadow-blue-600/20 active:scale-[0.98] transition-all cursor-pointer">
-                    Log In
+                <button onclick="closeInfoModal()" class="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-white transition-colors cursor-pointer">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-                
-                <p class="text-xs text-center text-zinc-500 dark:text-zinc-400 mt-2">
-                    <span id="toggleText">Don't have an account?</span> 
-                    <button type="button" onclick="toggleAuthState()" id="toggleBtn" class="text-blue-600 font-semibold hover:underline ml-1">Create Account / Sign Up</button>
-                </p>
-            </form>
-
-            <div id="trialActionWrapper" class="hidden">
-                <button onclick="bypassWithTrialToken()" class="w-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-sm font-semibold py-3 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all cursor-pointer">
-                    Proceed with Free Trial Allocation
-                </button>
-                <p class="text-[11px] text-zinc-400 mt-3">No login criteria mapped. Total absolute duration restricted to 10 standard days.</p>
             </div>
+            <div id="infoModalContent" class="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-4 no-scrollbar scrolling-touch bg-white dark:bg-zinc-900">
+                </div>
         </div>
     </div>
-
-    <div id="topProgressBar" class="fixed top-0 left-0 h-[3px] bg-blue-600 z-[9999] w-0 transition-all duration-300 ease-out"></div>
 
     <div class="md:hidden fixed top-0 left-0 right-0 h-16 bg-sidebarBg-light dark:bg-sidebarBg-dark border-b border-black/5 dark:border-white/5 flex items-center justify-between px-4 z-40 transition-colors duration-200">
         <div class="flex items-center">
             <button onclick="toggleMobileSidebar()" class="text-zinc-700 dark:text-white mr-3 p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 active:scale-95 transition-transform">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
+            <button onclick="openInfoModal()" class="text-blue-600 dark:text-blue-400 p-1.5 rounded-lg bg-blue-600/10 hover:scale-105 transition-transform mr-3" title="Ecosystem Info">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </button>
             <h1 id="mobileHeaderTitle" class="text-md font-semibold tracking-wide text-zinc-800 dark:text-zinc-100">Workspace Home</h1>
         </div>
+        
         <button onclick="toggleTheme()" class="p-2 rounded-xl bg-black/5 dark:bg-white/5 text-zinc-700 dark:text-amber-400 hover:scale-105 transition-all">
             <span class="dark:hidden">🌙</span><span class="hidden dark:inline">☀️</span>
         </button>
@@ -90,13 +78,19 @@
 
     <aside id="sidebarPanel" class="fixed md:static inset-y-0 left-0 w-[275px] bg-sidebarBg-light dark:bg-sidebarBg-dark border-r border-black/5 dark:border-white/5 flex flex-col z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out transition-colors duration-200">
         <div class="p-6 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
-            <span class="text-lg font-bold tracking-wider bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Workspace Pro</span>
+            <div class="flex items-center gap-3">
+                <button onclick="openInfoModal()" class="text-blue-600 dark:text-blue-400 p-2 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 active:scale-95 transition-all cursor-pointer shadow-sm" title="Application Information System">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </button>
+                <span class="text-lg font-bold tracking-wider bg-gradient-to-r from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">Workspace Pro</span>
+            </div>
+            
             <div class="flex items-center gap-1">
-                <button onclick="toggleTheme()" class="hidden md:flex p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 text-zinc-600 dark:text-amber-400 transition-all cursor-pointer">
+                <button onclick="toggleTheme()" class="hidden md:flex p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 text-zinc-600 dark:text-amber-400 transition-all cursor-pointer" title="Toggle Light/Dark Mode">
                     <span class="dark:hidden">🌙</span><span class="hidden dark:inline">☀️</span>
                 </button>
-                <button onclick="logOutEcosystem()" class="p-2 text-zinc-400 hover:text-red-500 rounded-xl transition-colors cursor-pointer" title="Log Out">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                <button onclick="toggleMobileSidebar()" class="md:hidden text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white p-1 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
         </div>
@@ -106,16 +100,23 @@
     <main class="flex-1 flex flex-col h-full bg-slate-100 dark:bg-black relative pt-16 md:pt-0 overflow-hidden transition-colors duration-200">
         <div id="welcomeDashboard" class="absolute inset-0 z-10 flex flex-col items-center justify-start p-6 text-center bg-workspaceBg-light dark:bg-workspaceBg-dark overflow-y-auto no-scrollbar scrolling-touch transition-colors duration-200">
             <div class="max-w-7xl w-full py-6">
-                <div id="trialNoticeTopBar" class="hidden mb-6 mx-auto max-w-xl p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-600 dark:text-amber-400 font-medium"></div>
-                <h2 class="text-3xl md:text-4xl font-extrabold text-zinc-900 dark:text-white mb-2 tracking-tight">Welcome to Your Google Hub</h2>
-                <p class="text-zinc-500 dark:text-zinc-400 mb-4 max-w-md mx-auto text-sm md:text-base">A responsive system designed for Android, Apple, and Desktop ecosystems.</p>
-                <button onclick="resetOrderToDefault()" class="mb-8 text-xs text-blue-600 dark:text-blue-500 hover:underline cursor-pointer transition-colors">Reset Grid Order Layout</button>
-                <div id="dashboardGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 pb-12"></div>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-zinc-900 dark:text-white mb-2">Welcome to Your Google Hub</h2>
+                <p class="text-zinc-500 dark:text-zinc-400 mb-2 max-w-md mx-auto text-sm md:text-base">Click the information icon at the top-left to inspect applications data matrices or drag cards to reorder layout sequence.</p>
+                
+                <button onclick="resetOrderToDefault()" class="mb-8 text-xs text-blue-600 dark:text-blue-500 hover:underline cursor-pointer transition-colors">Reset Layout Order</button>
+                
+                <div id="dashboardGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pb-12"></div>
             </div>
         </div>
 
         <div id="iframeWrapper" class="w-full h-[calc(100vh-4rem)] md:h-full overflow-auto scrolling-touch hidden">
-            <iframe id="workspaceFrame" src="about:blank" class="w-full h-full border-none bg-white"></iframe>
+            <iframe
+                id="workspaceFrame"
+                src="about:blank"
+                class="w-full h-full border-none bg-white"
+                allow="geolocation; microphone; camera; encrypted-media; autoplay; clipboard-write; gyroscope; picture-in-picture;"
+                allowfullscreen
+            ></iframe>
         </div>
     </main>
 
@@ -123,137 +124,148 @@
         const svgIcons = {
             dashboard: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>`,
             search: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>`,
-            gemini: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>`
+            video: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>`,
+            gemini: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>`,
+            notebook: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>`,
+            ads: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>`,
+            drive: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5 5 0 00-4.591-3.441 5 5 0 00-4.746 3.445 1 1 0 01-1 1A4 4 0 003 15z"/></svg>`,
+            gmail: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>`,
+            maps: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`,
+            calendar: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`,
+            docs: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`,
+            sheets: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18M12 3v18M6 3v18M18 3v18M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5z"/></svg>`,
+            slides: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h18M3 16h18M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z"/></svg>`,
+            photos: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`,
+            keep: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>`,
+            lens: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`,
+            meet: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>`,
+            forms: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>`,
+            business: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>`,
+            contacts: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>`,
+            news: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6m-6 4h3"/></svg>`,
+            translate: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 0H3m11 8l4-4-4-4"/></svg>`,
+            finance: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+            classroom: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>`,
+            chat: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>`,
+            playstore: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+            shopping: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>`,
+            earth: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+            arts: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`,
+            travel: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>`,
+            books: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>`,
+            chromestore: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>`,
+            passwords: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>`,
+            analytics: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>`,
+            blogger: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>`,
+            ytmusic: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 10l12-3M7 21a3 3 0 11-6 0 3 3 0 016 0zm14-3a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`,
+            wallet: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>`,
+            tasks: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>`,
+            sites: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>`
         };
 
+        // Comprehensive service definition with contextual structural details
         const defaultServices = [
-            { id: 'home', name: 'Workspace Home', url: 'home', icon: 'dashboard', color: 'text-zinc-500', embeddable: true },
-            { id: 'search', name: 'Google Search', url: 'https://www.google.com/search?igu=1', icon: 'search', color: 'text-blue-500', embeddable: true },
-            { id: 'gemini', name: 'Gemini AI', url: 'https://gemini.google.com', icon: 'gemini', color: 'text-purple-500', embeddable: false }
+            { id: 'home', name: 'Workspace Home', url: 'home', icon: 'dashboard', color: 'text-zinc-500 dark:text-zinc-400', embeddable: true, desc: 'Central command architecture center showcasing analytics grids and quick ecosystem navigation anchors.' },
+            { id: 'search', name: 'Google Search', url: 'https://www.google.com', icon: 'search', color: 'text-blue-500', embeddable: false, desc: 'The worlds primary information parsing engine optimized for targeted query indexing.' },
+            { id: 'sites', name: 'Google Sites', url: 'https://sites.google.com', icon: 'sites', color: 'text-sky-500', embeddable: false, desc: 'Structured wiki and webpage creation tool enabling rapid design publishing.' },
+            { id: 'maps', name: 'Google Maps', url: 'https://maps.google.com', icon: 'maps', color: 'text-green-500', embeddable: false, desc: 'Satellite imagery, street maps, and real-time transit telemetry tracking infrastructure.' },
+            { id: 'youtube', name: 'YouTube', url: 'https://www.youtube.com', icon: 'video', color: 'text-red-500', embeddable: false, desc: 'Global digital video broadcasting network and media streaming destination platform.' },
+            { id: 'gemini', name: 'Gemini AI', url: 'https://gemini.google.com', icon: 'gemini', color: 'text-purple-500 dark:text-purple-400', embeddable: false, desc: 'Google next-generation large language model offering hyper-advanced cognitive computing assistance.' },
+            { id: 'news', name: 'Google News', url: 'https://news.google.com', icon: 'news', color: 'text-blue-500 dark:text-blue-400', embeddable: false, desc: 'Automated intelligence aggregator collating breaking headlines from global press sources.' },
+            { id: 'translate', name: 'Google Translate', url: 'https://translate.google.com', icon: 'translate', color: 'text-indigo-500 dark:text-indigo-400', embeddable: false, desc: 'Neural machine translation portal bridging cross-lingual barriers instantly across hundreds of dialects.' },
+            { id: 'finance', name: 'Google Finance', url: 'https://www.google.com/finance', icon: 'finance', color: 'text-emerald-600 dark:text-emerald-500', embeddable: false, desc: 'Real-time market tracking matrices, financial data feeds, and corporate stock performance metrics.' },
+            { id: 'classroom', name: 'Google Classroom', url: 'https://classroom.google.com', icon: 'classroom', color: 'text-green-600', embeddable: false, desc: 'Blended learning management interface simplifying assignments distribution and academic collaborations.' },
+            { id: 'chat', name: 'Google Chat', url: 'https://chat.google.com', icon: 'chat', color: 'text-cyan-500', embeddable: false, desc: 'Secure real-time enterprise messaging framework built for teams sync integration.' },
+            { id: 'meet', name: 'Google Meet', url: 'https://meet.google.com', icon: 'meet', color: 'text-teal-600 dark:text-teal-500', embeddable: false, desc: 'Enterprise-grade video conferencing pipeline deploying robust encryption streams.' },
+            { id: 'forms', name: 'Google Forms', url: 'https://docs.google.com/forms', icon: 'forms', color: 'text-purple-600 dark:text-purple-500', embeddable: false, desc: 'Dynamic survey system hosting robust logic branches and quantitative analytics outputs.' },
+            { id: 'play', name: 'Google Play', url: 'https://play.google.com', icon: 'playstore', color: 'text-pink-500', embeddable: false, desc: 'Digital distribution repository serving application compilation binaries and verified media wrappers.' },
+            { id: 'shopping', name: 'Google Shopping', url: 'https://shopping.google.com', icon: 'shopping', color: 'text-amber-600', embeddable: false, desc: 'E-commerce crawling matrix facilitating commercial pricing reviews and inventory lookups.' },
+            { id: 'earth', name: 'Google Earth', url: 'https://earth.google.com', icon: 'earth', color: 'text-blue-500', embeddable: false, desc: '3D geospatial globe running geospatial imagery datasets over physical topography layers.' },
+            { id: 'arts', name: 'Arts & Culture', url: 'https://artsandculture.google.com', icon: 'arts', color: 'text-red-500 dark:text-red-400', embeddable: false, desc: 'Ultra-high-definition museum vault cataloging fine art history items.' },
+            { id: 'travel', name: 'Google Travel', url: 'https://www.google.com/travel', icon: 'travel', color: 'text-sky-500 dark:text-sky-400', embeddable: false, desc: 'Itinerary compilation vector tracking flight paths, hotel lodging listings, and reservations.' },
+            { id: 'books', name: 'Google Books', url: 'https://books.google.com', icon: 'books', color: 'text-orange-500', embeddable: false, desc: 'Massive full-text literary database index sourcing digitized reading material prints.' },
+            { id: 'chromestore', name: 'Chrome Web Store', url: 'https://chromewebstore.google.com', icon: 'chromestore', color: 'text-cyan-500 dark:text-cyan-400', embeddable: false, desc: 'Browser capabilities expansion repository distributing modular add-ons and UI themes.' },
+            { id: 'passwords', name: 'Password Manager', url: 'https://passwords.google.com', icon: 'passwords', color: 'text-yellow-600 dark:text-yellow-500', embeddable: false, desc: 'Zero-knowledge inspired credential encryption safe handling autofill tokens automatically.' },
+            { id: 'analytics', name: 'Google Analytics', url: 'https://analytics.google.com', icon: 'analytics', color: 'text-orange-500 dark:text-orange-400', embeddable: false, desc: 'Professional web traffic diagnostics ledger auditing consumer conversion funnels.' },
+            { id: 'blogger', name: 'Blogger', url: 'https://www.blogger.com', icon: 'blogger', color: 'text-orange-600', embeddable: false, desc: 'Content management system dedicated to straightforward weblog publishing timelines.' },
+            { id: 'ytmusic', name: 'YouTube Music', url: 'https://music.youtube.com', icon: 'ytmusic', color: 'text-red-600', embeddable: false, desc: 'Acoustic audio stream distributor indexing official track records and indie catalogs.' },
+            { id: 'wallet', name: 'Google Wallet', url: 'https://wallet.google', icon: 'wallet', color: 'text-zinc-600 dark:text-zinc-300', embeddable: false, desc: 'Digital asset vault shielding loyalty passes, flight tickets, and contactless financial tokens.' },
+            { id: 'tasks', name: 'Google Tasks', url: 'https://assistant.google.com/tasks', icon: 'tasks', color: 'text-blue-600', embeddable: false, desc: 'Minimalist product operations registry managing deadlines alongside calendar tracks.' },
+            { id: 'business', name: 'Business Profile', url: 'https://business.google.com', icon: 'business', color: 'text-orange-500 dark:text-orange-400', embeddable: false, desc: 'Geolocated enterprise index serving physical business discovery feeds.' },
+            { id: 'contacts', name: 'Google Contacts', url: 'https://contacts.google.com', icon: 'contacts', color: 'text-blue-500 dark:text-blue-400', embeddable: false, desc: 'Cloud addressing index archiving directories, phone handles, and group distribution nodes.' },
+            { id: 'lens', name: 'Google Lens', url: 'https://lens.google', icon: 'lens', color: 'text-teal-500 dark:text-teal-400', embeddable: false, desc: 'Computer vision framework executing text optical character recognition and object parsing matching.' },
+            { id: 'notebook', name: 'NotebookLM', url: 'https://notebooklm.google.com', icon: 'notebook', color: 'text-cyan-500 dark:text-cyan-400', embeddable: false, desc: 'AI-grounded personalized research notes companion interpreting source documents syntheses.' },
+            { id: 'ads', name: 'Google Ads', url: 'https://ads.google.com', icon: 'ads', color: 'text-amber-500', embeddable: false, desc: 'Auction-based commercial search visibility targeting platform optimizing conversions.' },
+            { id: 'docs', name: 'Google Docs', url: 'https://docs.google.com', icon: 'docs', color: 'text-blue-500 dark:text-blue-400', embeddable: false, desc: 'Collaborative cloud-native rich text processing environment with real-time multiplayer cursors.' },
+            { id: 'sheets', name: 'Google Sheets', url: 'https://sheets.google.com', icon: 'sheets', color: 'text-green-500 dark:text-green-400', embeddable: false, desc: 'Data modeling table layout calculator handling arrays, pivot compilations, and script macros.' },
+            { id: 'slides', name: 'Google Slides', url: 'https://slides.google.com', icon: 'slides', color: 'text-yellow-600', embeddable: false, desc: 'Vector presentation design toolkit serving animations and slideshow screens.' },
+            { id: 'photos', name: 'Google Photos', url: 'https://photos.google.com', icon: 'photos', color: 'text-indigo-500 dark:text-indigo-400', embeddable: false, desc: 'Algorithmic asset manager backing up user photography timelines with face grouping filters.' },
+            { id: 'keep', name: 'Google Keep', url: 'https://keep.google.com', icon: 'keep', color: 'text-amber-500 dark:text-amber-400', embeddable: false, desc: 'Agile scratchpad handling voice memos, checkable logs, and pinned pinboards notes.' },
+            { id: 'drive', name: 'Google Drive', url: 'https://drive.google.com', icon: 'drive', color: 'text-yellow-600 dark:text-yellow-500', embeddable: false, desc: 'Cloud storage solution implementing file version history and cross-app sharing rules.' },
+            { id: 'gmail', name: 'Gmail', url: 'https://mail.google.com', icon: 'gmail', color: 'text-red-500 dark:text-red-400', embeddable: false, desc: 'Advanced electronic post protocol delivery application fitted with neural spam filtering layers.' },
+            { id: 'calendar', name: 'Google Calendar', url: 'https://calendar.google.com', icon: 'calendar', color: 'text-blue-500 dark:text-blue-400', embeddable: false, desc: 'Time coordination schedule registry managing invitations, resource logs, and scheduling vectors.' }
         ];
 
         let googleServices = JSON.parse(localStorage.getItem('workspace_pro_order')) || [...defaultServices];
         let selectedIndex = 0;
         let progressInterval;
-        
-        // Form states: 'login' or 'signup'
-        let currentFormState = 'login'; 
 
-        // --- 🔐 AUTHENTICATION & MULTI-USER STORAGE SYSTEM ---
-        const TRIAL_DAYS_LIMIT = 10;
+        // --- ℹ️ ECOSYSTEM INFORMATION DIRECTORY MODAL LOGIC ---
+        function generateInfoDirectory() {
+            const contentArea = document.getElementById('infoModalContent');
+            contentArea.innerHTML = '';
 
-        function runAuthEngineDiagnostics() {
-            const authState = localStorage.getItem('hub_auth_session');
-            let firstVisitTime = localStorage.getItem('hub_trial_start');
+            googleServices.forEach(service => {
+                const row = document.createElement('div');
+                row.className = 'p-4 bg-zinc-50 dark:bg-zinc-800/40 border border-black/5 dark:border-white/5 rounded-2xl flex gap-4 items-start';
 
-            if (!firstVisitTime) {
-                firstVisitTime = Date.now();
-                localStorage.setItem('hub_trial_start', firstVisitTime);
-            }
+                row.innerHTML = `
+                    <div class="p-3 bg-white dark:bg-zinc-900 rounded-xl shadow-sm flex-shrink-0 ${service.color}">
+                        ${svgIcons[service.icon] || svgIcons.dashboard}
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-bold text-sm text-zinc-900 dark:text-white">${service.name}</h4>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold ${service.embeddable ? 'bg-blue-600/10 text-blue-500' : 'bg-amber-600/10 text-amber-500'}">
+                                ${service.embeddable ? 'Portal Hub' : 'External'}
+                            </span>
+                        </div>
+                        <p class="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">${service.desc || 'No supplementary data compiled for this integration block element nodes.'}</p>
+                    </div>
+                `;
+                contentArea.appendChild(row);
+            });
+        }
 
-            const daysElapsed = (Date.now() - parseInt(firstVisitTime)) / (1000 * 60 * 60 * 24);
-            const daysRemaining = Math.max(0, Math.ceil(TRIAL_DAYS_LIMIT - daysElapsed));
+        function openInfoModal() {
+            generateInfoDirectory();
+            const modalOverlay = document.getElementById('infoModalOverlay');
+            const modalBox = document.getElementById('infoModalBox');
             
-            const banner = document.getElementById('trialStatusBanner');
-            const form = document.getElementById('authLoginForm');
-            const trialAction = document.getElementById('trialActionWrapper');
-            const topNotice = document.getElementById('trialNoticeTopBar');
-
-            if (authState === 'authenticated') {
-                document.getElementById('authScreenOverlay').classList.add('hidden');
-                topNotice.classList.add('hidden');
-                return;
-            }
-
-            form.classList.remove('hidden');
-
-            if (daysRemaining > 0) {
-                banner.innerText = `⏳ Free Trial Active: ${daysRemaining} Days Left (Without Login).`;
-                banner.className = "p-3.5 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 text-xs rounded-xl font-medium border border-amber-500/10";
-                trialAction.classList.remove('hidden');
-                topNotice.innerText = `⚠️ Running on Free Trial. (${daysRemaining} Days Left). Create an account to secure permanent access.`;
-                topNotice.classList.remove('hidden');
-            } else {
-                banner.innerText = "🛑 10-Day Trial Expired! Please register or log in to continue.";
-                banner.className = "p-3.5 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 text-xs rounded-xl font-medium border border-red-500/10";
-                trialAction.classList.add('hidden');
-                document.getElementById('authSubtitle').innerText = "Trial over. Authentication required.";
-            }
+            modalOverlay.classList.remove('hidden');
+            setTimeout(() => {
+                modalOverlay.classList.add('opacity-100');
+                modalBox.classList.remove('scale-95');
+                modalBox.classList.add('scale-100');
+            }, 10);
         }
 
-        // Switch between Login and Sign Up UI
-        function toggleAuthState() {
-            const title = document.getElementById('authTitle');
-            const submitBtn = document.getElementById('authSubmitBtn');
-            const toggleText = document.getElementById('toggleText');
-            const toggleBtn = document.getElementById('toggleBtn');
-
-            if (currentFormState === 'login') {
-                currentFormState = 'signup';
-                title.innerText = "Create Account";
-                submitBtn.innerText = "Register & Lock Access";
-                toggleText.innerText = "Already have an account?";
-                toggleBtn.innerText = "Log In here";
-            } else {
-                currentFormState = 'login';
-                title.innerText = "Workspace Gatekeeper";
-                submitBtn.innerText = "Log In";
-                toggleText.innerText = "Don't have an account?";
-                toggleBtn.innerText = "Create Account / Sign Up";
-            }
+        function closeInfoModal() {
+            const modalOverlay = document.getElementById('infoModalOverlay');
+            const modalBox = document.getElementById('infoModalBox');
+            
+            modalOverlay.classList.remove('opacity-100');
+            modalBox.classList.remove('scale-100');
+            modalBox.classList.add('scale-95');
+            setTimeout(() => modalOverlay.classList.add('hidden'), 300);
         }
 
-        function handleAuthSubmit(event) {
-            event.preventDefault();
-            const email = document.getElementById('authEmailInput').value.trim().toLowerCase();
-            const password = document.getElementById('authPasswordInput').value;
-
-            // Fetch existing users database array from localStorage
-            let usersDb = JSON.parse(localStorage.getItem('workspace_users_db')) || [];
-
-            if (currentFormState === 'signup') {
-                // Check if user already exists
-                const userExists = usersDb.some(u => u.email === email);
-                if (userExists) {
-                    alert("❌ This Gmail is already registered. Please log in.");
-                    return;
-                }
-                // Save new user credentials
-                usersDb.push({ email: email, password: password });
-                localStorage.setItem('workspace_users_db', JSON.stringify(usersDb));
-                alert("✅ Account created successfully! Logging you in...");
-                
-                // Set session
-                localStorage.setItem('hub_auth_session', 'authenticated');
-                window.location.reload();
-            } else {
-                // Login Flow
-                const matchedUser = usersDb.find(u => u.email === email && u.password === password);
-                if (matchedUser) {
-                    localStorage.setItem('hub_auth_session', 'authenticated');
-                    document.getElementById('authScreenOverlay').classList.add('hidden');
-                    document.getElementById('trialNoticeTopBar').classList.add('hidden');
-                } else {
-                    alert("❌ Invalid Gmail or Password! If you are a new user, click 'Create Account' below.");
-                }
-            }
-        }
-
-        function bypassWithTrialToken() {
-            document.getElementById('authScreenOverlay').classList.add('hidden');
-        }
-
-        function logOutEcosystem() {
-            if(confirm("Log out of this session?")) {
-                localStorage.removeItem('hub_auth_session');
-                window.location.reload();
-            }
-        }
-
-        // --- 🌗 THEME AND NAVIGATION ENGINES ---
+        // --- 🌗 CORE THEME MANAGEMENT SYSTEM ---
         function initThemeEngine() {
             const cachedTheme = localStorage.getItem('workspace_theme');
-            if (cachedTheme === 'dark' || (!cachedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (cachedTheme === 'dark' || (!cachedTheme && systemPrefersDark)) {
                 document.documentElement.classList.add('dark');
             } else {
                 document.documentElement.classList.remove('dark');
@@ -270,17 +282,30 @@
             }
         }
 
+        // --- 🧭 NAVIGATION & GRID LIST RENDERING ---
         function renderNavigation() {
             const container = document.getElementById('navigationContainer');
             container.innerHTML = '';
+
             googleServices.forEach((service, index) => {
                 const isSelected = index === selectedIndex;
                 const btnContainer = document.createElement('div');
                 btnContainer.className = 'px-3';
+
                 const button = document.createElement('button');
                 button.onclick = () => handleServiceSelect(index);
-                button.className = `w-full flex items-center gap-4 px-4 py-2.5 rounded-xl transition-all duration-200 group ${isSelected ? 'bg-blue-600/10 text-blue-600 dark:text-blue-400 font-semibold border-l-4 border-blue-500 pl-3' : 'text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5'}`;
-                button.innerHTML = `<div class="${isSelected ? 'text-blue-500' : 'text-zinc-400'}">${svgIcons[service.icon] || svgIcons.dashboard}</div><span class="text-[14px]">${service.name}</span>`;
+                button.className = `w-full flex items-center gap-4 px-4 py-2.5 rounded-xl transition-all duration-200 group ${
+                    isSelected 
+                    ? 'bg-blue-600/10 text-blue-600 dark:text-blue-400 font-semibold border-l-4 border-blue-500 pl-3' 
+                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-zinc-100'
+                }`;
+
+                button.innerHTML = `
+                    <div class="transition-colors duration-200 ${isSelected ? 'text-blue-500' : 'text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200'}">
+                        ${svgIcons[service.icon] || svgIcons.dashboard}
+                    </div>
+                    <span class="text-[14px] tracking-wide text-left">${service.name}</span>
+                `;
                 btnContainer.appendChild(button);
                 container.appendChild(btnContainer);
             });
@@ -289,41 +314,183 @@
         function buildDashboardGrid() {
             const grid = document.getElementById('dashboardGrid');
             grid.innerHTML = '';
+
             googleServices.forEach((service, index) => {
                 if (service.id === 'home') return;
+
                 const card = document.createElement('div');
-                card.className = 'bg-sidebarBg-light dark:bg-cardBg-dark border border-black/5 dark:border-white/5 p-5 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-blue-500/40 transition-all shadow-sm';
-                card.onclick = () => handleServiceSelect(index);
-                card.innerHTML = `<div class="${service.color}">${svgIcons[service.icon] || svgIcons.dashboard}</div><span class="text-xs font-medium text-zinc-700 dark:text-zinc-200">${service.name}</span>`;
+                card.setAttribute('draggable', 'true');
+                card.setAttribute('data-id', service.id);
+                card.className = 'bg-sidebarBg-light dark:bg-cardBg-dark border border-black/5 dark:border-white/5 p-5 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-grab active:cursor-grabbing hover:border-blue-500/40 dark:hover:border-blue-500/50 hover:shadow-md dark:hover:bg-white/[0.02] transition-all duration-300 group shadow-sm select-none';
+                
+                card.onclick = () => {
+                    if(card.classList.contains('dragging')) return;
+                    handleServiceSelect(index);
+                };
+
+                card.addEventListener('dragstart', () => card.classList.add('dragging'));
+                card.addEventListener('dragend', () => {
+                    card.classList.remove('dragging');
+                    saveNewOrderState();
+                });
+
+                card.innerHTML = `
+                    <div class="p-3 bg-black/5 dark:bg-white/5 rounded-xl group-hover:scale-110 transition-transform duration-300 ${service.color} pointer-events-none">
+                        ${svgIcons[service.icon] || svgIcons.dashboard}
+                    </div>
+                    <span class="text-xs font-medium tracking-wide text-zinc-700 dark:text-zinc-200 text-center pointer-events-none">${service.name}</span>
+                `;
                 grid.appendChild(card);
             });
+
+            initDragAndDropSorting();
+        }
+
+        function initDragAndDropSorting() {
+            const grid = document.getElementById('dashboardGrid');
+            
+            grid.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const draggingCard = document.querySelector('.dragging');
+                if(!draggingCard) return;
+
+                const siblings = [...grid.querySelectorAll('[draggable="true"]:not(.dragging)')];
+                
+                let nextSibling = siblings.find(sibling => {
+                    const box = sibling.getBoundingClientRect();
+                    const offset = e.clientY - box.top - box.height / 2;
+                    const offsetHorizontal = e.clientX - box.left - box.width / 2;
+                    return offset < 0 || offsetHorizontal < 0;
+                });
+
+                if(!nextSibling) {
+                    grid.appendChild(draggingCard);
+                } else {
+                    grid.insertBefore(draggingCard, nextSibling);
+                }
+            });
+        }
+
+        function saveNewOrderState() {
+            const grid = document.getElementById('dashboardGrid');
+            const currentCards = [...grid.querySelectorAll('[draggable="true"]')];
+            
+            let sortedServices = [];
+            const homeService = defaultServices.find(s => s.id === 'home');
+            sortedServices.push(homeService);
+
+            currentCards.forEach(card => {
+                const serviceId = card.getAttribute('data-id');
+                const matchedService = googleServices.find(s => s.id === serviceId);
+                if(matchedService) sortedServices.push(matchedService);
+            });
+
+            googleServices = sortedServices;
+            localStorage.setItem('workspace_pro_order', JSON.stringify(googleServices));
+            renderNavigation();
+        }
+
+        function resetOrderToDefault() {
+            localStorage.removeItem('workspace_pro_order');
+            googleServices = [...defaultServices];
+            buildDashboardGrid();
+            renderNavigation();
         }
 
         function handleServiceSelect(index) {
             const service = googleServices[index];
-            if (!service.embeddable) { window.open(service.url, '_blank'); return; }
-            selectedIndex = index; renderNavigation();
+
+            if (!service.embeddable) {
+                window.open(service.url, '_blank');
+                return; 
+            }
+
+            selectedIndex = index;
+            renderNavigation();
+
             const iframe = document.getElementById('workspaceFrame');
             const iframeWrapper = document.getElementById('iframeWrapper');
             const welcomeDashboard = document.getElementById('welcomeDashboard');
+            const progressBar = document.getElementById('topProgressBar');
             
+            document.getElementById('mobileHeaderTitle').innerText = service.name;
+
+            clearInterval(progressInterval);
+            progressBar.style.transition = 'none';
+            progressBar.style.width = '0%';
+            
+            let currentWidth = 0;
+            setTimeout(() => {
+                progressBar.style.transition = 'width 0.4s ease-out';
+                currentWidth = 20;
+                progressBar.style.width = `${currentWidth}%`;
+
+                progressInterval = setInterval(() => {
+                    if (currentWidth < 85) {
+                        currentWidth += 15;
+                        progressBar.style.width = `${currentWidth}%`;
+                    }
+                }, 100);
+            }, 50);
+
             if (service.url === 'home') {
-                iframeWrapper.classList.add('hidden'); welcomeDashboard.classList.remove('hidden'); iframe.src = "about:blank";
+                iframeWrapper.classList.add('hidden');
+                welcomeDashboard.classList.remove('hidden');
+                iframe.src = "about:blank";
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                setTimeout(() => progressBar.style.width = '0%', 300);
             } else {
-                welcomeDashboard.classList.add('hidden'); iframeWrapper.classList.remove('hidden'); iframe.src = service.url;
+                welcomeDashboard.classList.add('hidden');
+                iframeWrapper.classList.remove('hidden');
+                iframe.src = service.url;
             }
-            if (!document.getElementById('sidebarPanel').classList.contains('-translate-x-full')) toggleMobileSidebar();
+
+            const sidebarPanel = document.getElementById('sidebarPanel');
+            if (!sidebarPanel.classList.contains('-translate-x-full')) {
+                toggleMobileSidebar();
+            }
         }
 
+        function resetToHomeState() {
+            selectedIndex = 0;
+            renderNavigation();
+            document.getElementById('mobileHeaderTitle').innerText = googleServices[0].name;
+            document.getElementById('iframeWrapper').classList.add('hidden');
+            document.getElementById('welcomeDashboard').classList.remove('hidden');
+            document.getElementById('workspaceFrame').src = "about:blank";
+        }
+
+        document.getElementById('workspaceFrame').onload = function() {
+            clearInterval(progressInterval);
+            const progressBar = document.getElementById('topProgressBar');
+            if (this.src !== "about:blank") {
+                progressBar.style.width = '100%';
+                setTimeout(() => {
+                    progressBar.style.width = '0%';
+                    progressBar.style.transition = 'none';
+                }, 300);
+            }
+        };
+
         function toggleMobileSidebar() {
-            document.getElementById('sidebarPanel').classList.toggle('-translate-x-full');
-            document.getElementById('sidebarOverlay').classList.toggle('hidden');
+            const panel = document.getElementById('sidebarPanel');
+            const overlay = document.getElementById('sidebarOverlay');
+            panel.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        // Close modal when user clicks outside the modal box container card background
+        window.onclick = function(event) {
+            const modalOverlay = document.getElementById('infoModalOverlay');
+            if (event.target === modalOverlay) {
+                closeInfoModal();
+            }
         }
 
         window.onload = function() {
             initThemeEngine();
-            runAuthEngineDiagnostics();
-            renderNavigation();
+            resetToHomeState();
             buildDashboardGrid();
         };
     </script>
